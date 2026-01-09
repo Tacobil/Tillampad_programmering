@@ -15,6 +15,7 @@ Servo servoLift;
 
 #define L1 4.8 // bottom left arm
 #define L2 6.4 // top left arm
+
 #define OFFSET 2.8 // distance between left servo and right servo
 #define PENOFFSET 1.6 // distance between top joint and pen
 
@@ -29,6 +30,9 @@ Servo servoLift;
 
 String inputString = "";   // stores incoming chars
 int servoAngle = 90;
+float lastX = 0;
+float lastY = 0;
+
 void setPos(double x, double y, bool debug = false) {
   outOfReach(x, y);
 
@@ -53,19 +57,21 @@ void setPos(double x, double y, bool debug = false) {
   q1Left = -q1Left;
   q1Right = -q1Right;
 
-  int angleLeft = q1Left * 180 / PI;
-  int angleRight = q1Right * 180 / PI;
-
-  servoLeft.write(angleLeft);
-  servoRight.write(angleRight);
+  int angleLeftMillis = map(q1Left*1000, 0, PI*1000, 544, 2400);
+  int angleRightMillis = map(q1Right*1000, 0, PI*1000, 544, 2400);
+  servoLeft.writeMicroseconds(angleLeftMillis);
+  servoRight.writeMicroseconds(angleRightMillis);
+  // int angleLeft = q1Left * 180 / PI;
+  // int angleRight = q1Right * 180 / PI;
+  // servoLeft.write(angleLeft);
+  // servoRight.write(angleRight);
  
   if (debug) {
-  Serial.println("angle left: "+String(angleLeft)+", "+String(q1Left)+", "+String(q2Left));
-  Serial.println("angle right: "+String(angleRight)+", "+String(q1Right)+", "+String(q2Right));
+  Serial.println("angle left: "+String(angleLeftMillis)+", "+String(q1Left)+", "+String(q2Left));
+  Serial.println("angle right: "+String(angleRightMillis)+", "+String(q1Right)+", "+String(q2Right));
   }
 
 }
-
 
 void setup() {
   servoLeft.attach(LEFTPIN);
@@ -115,8 +121,8 @@ void loop() {
     servosWrite(servoAngle);
     // setPos(OFFSET/2, 7);
   } else {
-    // drawCircle(OFFSET/2, 7, 2);
-    followXAxis(4, 7);
+    drawCircle(OFFSET/2, 8, 2);
+    // followXAxis(4, 7);
     // drawSquare(OFFSET/2, 7, 3, 3);
     // setPos(OFFSET/2, 7);
   }
@@ -142,7 +148,10 @@ void followXAxis(float distance, float y) {
 void drawTo(float x, float y) {
   for (int i = 0; i <= 100; i++) {
 
+    delay(2);
   }
+  lastX = x;
+  lastY = y;
 }
 
 void drawSquare(float x, float y, float w, float h) {
@@ -180,7 +189,7 @@ void drawSquare(float x, float y, float w, float h) {
 }
 
 void drawCircle(float x, float y, float r) {
-  for (float t = 0; t <= 2*PI; t += 0.01) {
+  for (float t = 0; t <= 2*PI; t += 0.005) {
     float px = x + r * cos(t);
     float py = y + r * sin(t);
     setPos(px, py);
