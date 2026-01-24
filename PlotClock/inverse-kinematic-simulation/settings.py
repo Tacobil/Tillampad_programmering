@@ -6,18 +6,18 @@ FPS = 60
 
 BGC = (20,20,20)
 
-SCALE = pygame.Vector2(41,41)
+SCALE = pygame.Vector2(4.1,4.1)
 
-L1 = 4.8
-L2 = 6.4
+L1 = 48
+L2 = 64
 
-R1 = 4.8
-R2 = 4.8
+R1 = 48
+R2 = 48
 
-OFFSET = 2.8
-PENOFFSET = 1.6
+OFFSET = 28
+PENOFFSET = 16
 
-IDLE = pygame.Vector2(OFFSET/2, -7)
+IDLE = pygame.Vector2(OFFSET/2, -70)
 
 CENTER = pygame.Vector2(VW*0.5, VH*0.7)
 

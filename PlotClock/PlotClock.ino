@@ -38,8 +38,7 @@ const uint8_t ANGLEOFFSET = 60;
 
 String inputString = "";  // stores incoming chars
 
-float lastX = OFFSET/2;
-float lastY = 10;
+float lastX, lastY;
 
 void setup() {
   Serial.begin(9600);
@@ -48,6 +47,12 @@ void setup() {
   servoLeft.attach(SERVOLEFTPIN);
   servoRight.attach(SERVORIGHTPIN);
   servoLift.attach(SERVOLIFTPIN);
+  float s = 0.5;
+  // drawArcCCW(4 + 7*s, 4+ 10*s, 10*s, 90, 450, 2/3);
+  setXY(0,100);
+  lastX = 0;
+  lastY = 100;
+
 }
 
 void loop() {
@@ -97,7 +102,6 @@ void handeInput() {
         case 'c': // circle
           drawCircle(OFFSET / 2, 80, 30);
           break;
-
         case 'r': // rect
           {
           int x = 0;
@@ -127,7 +131,7 @@ void handeInput() {
         
         case 'l': // line
           Serial.println("line");
-          set_XY(-40, 70);
+          setXY(-40, 70);
           lastX = -40;
           lastY = 70;
           drawTo(80,100);
