@@ -1,4 +1,12 @@
-// Moves pen quickly to (x, y)
+/*
+  Sets position to (x, y). 
+
+  Parameters:
+    float x    x-coordinate
+    float y    y-coordinate
+
+  Returns: void
+*/
 void setXY(float x, float y) {
   // check if left arm is out of reach
   if (sq(x) + sq(y) >= sq(L1 + L2)) {
@@ -33,23 +41,23 @@ void setXY(float x, float y) {
   q1Left = -q1Left;
   q1Right = -q1Right;
 
-  // with degrees
+  // to degrees
   int angleLeft = q1Left * 180 / PI - ANGLEOFFSET;
   int angleRight = q1Right * 180 / PI + ANGLEOFFSET;
 
   servoLeft.write(angleLeft);
   servoRight.write(angleRight);
-
-  /* // with millis
-  int angleLeftMillis = map(q1Left * 1000, 0, PI * 1000, 544, 2400);
-  int angleRightMillis = map(q1Right * 1000, 0, PI * 1000, 544, 2400);
-  servoLeft.writeMicroseconds(angleLeftMillis);
-  servoRight.writeMicroseconds(angleRightMillis);
-  */
 }
 
-void lift(int p) {
-  switch (p) {
+/*
+  A function that controls the lift motor.
+
+  Parameters:
+    int state   0 = down, 1 = pen up, 2 = pen idle
+  Returns: void
+*/
+void lift(int state) {
+  switch (state) {
     case 0:  // pen down
       servoLift.write(90);
       break;
@@ -62,52 +70,227 @@ void lift(int p) {
   }
 }
 
-// Draws a line from current position to (x, y)
+/*
+  Function that draws a line to position (x, y). Unlike setXY, this takes small steps to the destination.
+
+  Parameters:
+    float x    x-coordinate to draw to
+    float y    y-coordinate to draw to
+
+  Returns: void
+*/
 void drawTo(float x, float y) {
-  float distance = sqrt(sq(x) + sq(y));
-  int steps = distance * 10; // Number of steps to take. Times 4 means 4 steps per mm
+  float distance = sqrt(sq(x - lastX) + sq(y - lastY));
+  int steps = distance * 8;  // Number of steps to take. Times 4 means 4 steps per mm
+  if (steps == 0) return;
 
   // Calculate step size X and step size Y
   float stepX = (x - lastX) / steps;
   float stepY = (y - lastY) / steps;
 
-  for (int i = 0; i <= steps; i++) {
-    setXY(lastX + stepX * i, lastY + stepY * i);
-  }
+  for (int i = 0; i <= steps; i++) setXY(lastX + stepX * i, lastY + stepY * i);
 
   lastX = x;
   lastY = y;
 }
 
-// Draw circle at position (x, y) with radius r
-void drawCircle(float x, float y, float r) {
-  for (float t = 0; t <= 2; t += 0.005) {
-    float px = x + r * cos(t*PI);
-    float py = y + r * sin(t*PI) * 1.1;
-    setXY(px, py);
-    delay(10);
-  }
-}
+/*
+  Function that draws an arc counter-clockwise, by drawing a portion of a circle.
 
-void drawArcCCW(float x, float y, float r, float start, float stop, float stretch) {
+  Parameters:
+    float x         x-coordinate of the circle
+    float y         y-coordinate of the circle
+    float r         radius of the circle
+    int start       angle to start at (degrees)
+    int stop        angle to stop at (degrees)
+    float stretch   stretch factor x-axis
+    bool delayAtStart  determines if the function should go to starting pos and then delay
+
+  Returns: void
+*/
+void drawArcCCW(float x, float y, float r, float start, float stop, float stretch, bool delayAtStart) {
   for (int i = start; i <= stop; i += 1) {
-    float angleRad = i / 180 * PI;
-    setXY(x + stretch * r * cos(angleRad), y + r * sin(angleRad));
+    float angleRad = i * PI / 180.0;
+
+    float px = x + stretch * r * cos(angleRad);
+    float py = y + r * sin(angleRad);
+    if (i == start) {
+      setXY(px, py);
+      lastX = px;
+      lastY = py;
+      if (delayAtStart) delay(1000);
+    } else {
+      drawTo(px, py);
+    }
   }
 }
 
-void drawArcCW(float x, float y, float r, int start, int stop, float stretch) {
+/*
+  Function that draws an arc clockwise, by drawing a portion of a circle.
+
+  Parameters:
+    float x         x-coordinate of the circle
+    float y         y-coordinate of the circle
+    float r         radius of the circle
+    int start       angle to start at (degrees)
+    int stop        angle to stop at (degrees)
+    float stretch   stretch factor x-axis
+    bool delayAtStart  determines if the function should go to starting pos and then delay
+
+  Returns: void
+*/
+void drawArcCW(float x, float y, float r, int start, int stop, float stretch, bool delayAtStart) {
   for (int i = start; i >= stop; i -= 1) {
-    float angleRad = i / 180 * PI;
-    setXY(x + stretch * r * cos(angleRad), y + r * sin(angleRad));
+    float angleRad = i * PI / 180.0;
+
+    float px = x + stretch * r * cos(angleRad);
+    float py = y + r * sin(angleRad);
+
+    if (i == start) {
+      setXY(px, py);
+      lastX = px;
+      lastY = py;
+      if (delayAtStart) delay(1000);
+
+    } else {
+      drawTo(px, py);
+    }
   }
 }
 
+/*
+  Function that draws a character.
 
-void drawDigit(float x, float y, uint8_t digit) {
-  switch (digit) {
-    case 0:
-      lift(1);
+  Parameters:
+    char c   the character to draw
+    float x     x-coordinate
+    float y     y-coordinate
+    float s     scale
+
+  Returns: void
+*/
+void drawChar(char c, float x, float y, float s) {
+  switch (c) {
+    case '(':
+      drawArcCCW(x + 7.5 * s, y + 10 * s, 13 * s, 130, 230, 0.7, true);
       break;
+    case '=':
+      lastX = x + 0 * s;
+      lastY = y + 14 * s;
+      setXY(lastX, lastY);
+      delay(1000);
+      drawTo(x + 13 * s, y + 14 * s);
+      delay(1000);
+
+      lastX = x + 0 * s;
+      lastY = y + 6 * s;
+      setXY(lastX, lastY);
+      delay(1000);
+      drawTo(x + 13 * s, y + 6 * s);
+      break;
+    case ':':
+      drawArcCW(x + 5 * s, y + 14 * s, 1 * s, 360, 0, 1, true);
+      delay(1000);
+      drawArcCW(x + 5 * s, y + 7 * s, 1 * s, 360, 0, 1, true);
+      break;
+    
+
+    // Digits
+    case '0':
+      drawArcCCW(x + 7 * s, y + 10 * s, 10 * s, 90, 460, 2.0 / 3.0, true);
+      break;
+
+    case '1':
+      lastX = x + 3 * s;
+      lastY = y + 15 * s;
+      setXY(lastX, lastY);
+      delay(1000);
+
+      drawTo(x + 10 * s, y + 20 * s);
+      drawTo(x + 10 * s, y + 0 * s);
+      break;
+
+    case '2':
+      drawArcCW(x + 7 * s, y + 14.5 * s, 5.5 * s, 160, -50, 1, true);
+      drawTo(x + 1 * s, y + 0 * s);
+      drawTo(x + 13 * s, y + 0 * s);
+      break;
+
+    case '3':
+      drawArcCW(x + 7 * s, y + 15 * s, 5 * s, 135, -90, 1.2, true);
+      drawArcCW(x + 7 * s, y + 5 * s, 5 * s, 90, -140, 1.2, false);
+      break;
+
+    case '4':
+      lastX = x + 13 * s;
+      lastY = y + 6 * s;
+      setXY(lastX, lastY);
+      delay(1000);
+
+      drawTo(x + 0 * s, y + 6 * s);
+      drawTo(x + 10 * s, y + 20 * s);
+      drawTo(x + 10 * s, y + 0 * s);
+      break;
+
+    case '5':
+      lastX = x + 14 * s;
+      lastY = y + 20 * s;
+      setXY(lastX, lastY);
+      delay(1000);
+
+      drawTo(x + 2 * s, y + 20 * s);
+      drawTo(x + 2 * s, y + 10 * s);
+
+      drawArcCW(x + 7 * s, y + 6 * s, 6 * s, 133, -150, 1.2, false);
+      break;
+
+    case '6':
+      drawArcCCW(x + 7.2 * s, y + 12 * s, 8 * s, 40, 180, 0.9, true);
+      drawTo(x + 0 * s, y + 6.5 * s);
+      drawArcCCW(x + 7.2 * s, y + 6 * s, 6 * s, 180, 540, 1.2, false);
+      break;
+
+    case '7':
+      lastX = x + 1 * s;
+      lastY = y + 20 * s;
+      setXY(lastX, lastY);
+      delay(1000);
+
+      drawTo(x + 15 * s, y + 20 * s);
+      drawTo(x + 4 * s, y + 0 * s);
+      break;
+
+    case '8':
+      drawArcCCW(x + 7.5 * s, y + 15 * s, 5 * s, 90, 270, 1.2, true);
+      drawArcCW(x + 7.5 * s, y + 5 * s, 5 * s, 90, -270, 1.3, false);
+      drawArcCCW(x + 7.5 * s, y + 15 * s, 5 * s, 270, 450, 1.2, false);
+      break;
+
+    case '9':
+      drawArcCW(x + 5 * s, y + 14 * s, 6 * s, 360, 0, 1.2, true);
+      drawTo(x + 12 * s, y + 6.5 * s);
+      drawArcCW(x + 5.5 * s, y + 6 * s, 6 * s, 0, -160, 1.1, false);
+      break;
+
   }
 }
+
+/*
+  Function that draws a string.
+
+  Parameters:
+    String str   the string to draw
+    float x     x-coordinate
+    float y     y-coordinate
+    float s     scale
+
+  Returns: void
+*/
+void drawString(String str, float x, float y, float s) {
+  int N = str.length();
+  for (int i = 0; i < N; i++) {
+    drawChar(str[i],x + i * 15 * s, y, s);
+    delay(1000);
+  }
+}
+
