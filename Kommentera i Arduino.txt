@@ -1,0 +1,23 @@
+Kommentera i Arduino
+
+HEADER KOMMENTAR:
+/*
+Name: filens namn
+Author: författare
+Date: senaste ändringen
+Description: vad programmet gör
+*/
+
+INLINE KOMMENTAR
+// jag är en inline kommentar
+
+FUNKTIONSHEADERS
+/*
+Vad den gör
+Parameters: ...
+
+Returns: ...
+
+*/
+
+
