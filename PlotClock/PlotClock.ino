@@ -65,7 +65,7 @@ void setup() {
 
   // rtc clock
   rtc.begin();
-  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  // rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); // to adjust time: uncomment, upload, comment, upload
 }
 
 /*
@@ -75,7 +75,7 @@ void setup() {
 */
 void loop() {
   handeInput();
-  if (digitalRead(BUTTONPIN) == HIGH) command('t', "");
+  if (digitalRead(BUTTONPIN) == HIGH) command('t', ""); // when button is pressed, activate command 't' (draw time)
   delay(100);
 }
 
@@ -98,7 +98,7 @@ String getTime() {
   Function that handles commands.
   Commands:
     q     - set servo angles to 0
-    p     - set position to a hole
+    p     - set position for easy pen insert
     a (n) - set servo to angle n
     c (r) - draw circle with radius r
     r (s) - draw square with size s
@@ -129,6 +129,7 @@ void command(char keyword, String rest) {
     case 'c':  // circle
       drawArcCW(OFFSET / 2, 80, rest.toInt(), 360, 0, 1, true);
       break;
+      
     case 'r':  // rect
       {
         int x = 0;
