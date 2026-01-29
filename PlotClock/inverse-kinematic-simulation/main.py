@@ -30,6 +30,8 @@ class Game:
         self.mouse_pos = pygame.Vector2()
         self.last_pos = pygame.Vector2()
 
+        self.coordinates = []
+
         
     
     def draw_num(self, x, y, s, num):
@@ -121,7 +123,8 @@ class Game:
         for i in range(start, stop, 1):
             self.draw_to(get_point(i))
 
-    # draws a line from last pos to pos. draw_to has consistent speed unlike set_pos  
+    # draws a line from last pos to pos. draw_to has consistent speed unlike set_pos
+
     def draw_to(self, pos):
         distance = (self.last_pos - pos).magnitude()
         steps = math.floor(distance * 3) # 3 = 3 steps per mm
@@ -154,6 +157,18 @@ class Game:
                 match event.key:
                     case pygame.K_DELETE:
                         self.left_arm.canvas.fill((0,0,0,0))
+                        self.coordinates.clear()
+                    case pygame.K_p:
+                        print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+                        for c in self.coordinates:
+                            print("{" + f"{int(c.x)}, {int(-c.y)}" + "},")
+            
+            if event.type == pg.MOUSEBUTTONDOWN:
+                self.coordinates.append(descale(self.mouse_pos))
+                self.coordinates.append(pygame.Vector2(0,100))
+                print(" mouse down")
+            if event.type == pg.MOUSEBUTTONUP:
+                self.coordinates.append(pygame.Vector2(1,100))
 
 
     def end(self):
@@ -165,12 +180,16 @@ class Game:
         keys = pygame.key.get_pressed()
         self.key_dir = pygame.Vector2(int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT]), int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP]))
         self.mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
+        
 
     def update(self):
+        self.clock.tick(FPS)
         self.input()
-        mp = descale(self.mouse_pos)
-        self.set_pos(pygame.Vector2(mp.x, -mp.y))
-        self.last_pos = pygame.Vector2(mp.x, -mp.y)
+        if pygame.mouse.get_pressed()[0]:
+            mp = descale(self.mouse_pos)
+            self.set_pos(pygame.Vector2(mp.x, -mp.y))
+            self.last_pos = pygame.Vector2(mp.x, -mp.y)
+            self.coordinates.append(mp)
 
     def draw(self):
         self.screen.fill(BGC)

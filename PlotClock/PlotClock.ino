@@ -2,7 +2,7 @@
   Name: 2D-Drawer
   Author: Simon Bukvic
   Date: 2026-01-26
-  Description: A 2D writing robot consisting of three servos, one for lifting the pen and two for controlling the pen's position.
+  Description: A 2D writing robot consisting of three servos, one for §ing the pen and two for controlling the pen's position.
 */
 
 /* Useful resources
@@ -12,6 +12,9 @@ number drawing simulation: https://scratch.mit.edu/projects/1267648991
 
 // All units in mm
 // 8 mm between each stud for lego
+
+
+
 
 #include <Servo.h>
 #include <RTClib.h>
@@ -61,6 +64,7 @@ void setup() {
   lastX = 37 + OFFSET;
   lastY = 65;
   setXY(lastX, lastY);
+  lift(0);
 
 
   // rtc clock
@@ -75,7 +79,7 @@ void setup() {
 */
 void loop() {
   handeInput();
-  if (digitalRead(BUTTONPIN) == HIGH) command('t', ""); // when button is pressed, activate command 't' (draw time)
+  if (digitalRead(BUTTONPIN) == HIGH) command('t', "");  // when button is pressed, activate command 't' (draw time)
   delay(100);
 }
 
@@ -129,7 +133,7 @@ void command(char keyword, String rest) {
     case 'c':  // circle
       drawArcCW(OFFSET / 2, 80, rest.toInt(), 360, 0, 1, true);
       break;
-      
+
     case 'r':  // rect
       {
         int x = 0;
@@ -153,11 +157,20 @@ void command(char keyword, String rest) {
       lastY = 65;
       setXY(lastX, lastY);
       break;
-    case 'm': // draw message
+    case 'm':  // draw message
       drawString(rest, OFFSET / 2 - 40, 50, 1);
       break;
     case 't':  // draw time
-      drawString(getTime(), OFFSET/2 - 40, 50, 1);
+      drawString(getTime(), OFFSET / 2 - 40, 50, 1);
+      break;
+
+    case 'l':
+      lift(rest.toInt());
+      break;
+    
+    case 'w':
+      Serial.println("points");
+      drawPoints();
       break;
   }
 }
