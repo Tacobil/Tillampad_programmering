@@ -24,5 +24,4 @@ CENTER = pygame.Vector2(VW*0.4, VH*0.9)
 def scale(v):
     return pygame.Vector2(v.x*SCALE.x, v.y*SCALE.y) + CENTER
 def descale(v):
-    v -= CENTER
-    return pygame.Vector2(v.x/SCALE.x, v.y/SCALE.y)
+    return pygame.Vector2((v.x - CENTER.x)/SCALE.x, (v.y - CENTER.y)/SCALE.y)

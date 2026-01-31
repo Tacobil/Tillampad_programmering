@@ -64,7 +64,7 @@ void setup() {
   lastX = 37 + OFFSET;
   lastY = 65;
   setXY(lastX, lastY);
-  lift(0);
+  lift(2);
 
 
   // rtc clock
@@ -169,7 +169,6 @@ void command(char keyword, String rest) {
       break;
     
     case 'w':
-      Serial.println("points");
       drawPoints();
       break;
   }

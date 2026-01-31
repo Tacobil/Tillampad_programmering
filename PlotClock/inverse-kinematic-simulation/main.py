@@ -2,13 +2,15 @@
 CONTROLS:
 
 [cursor] - control the arms
-[R] - draw rectangle
+[left mouse button] - draw
 [C] - draw circle
 [delete] - clear canvas
 [0 1 2 3 4 5 6 7 8 9] - draw a digit 
+[P] - copy to clipboard
 
 """
 
+import pyperclip
 import pygame as pg
 import sys
 
@@ -159,10 +161,13 @@ class Game:
                         self.left_arm.canvas.fill((0,0,0,0))
                         self.coordinates.clear()
                     case pygame.K_p:
-                        print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+                        print("\n\n\n\n\n\n")
+                        string = ""
                         for c in self.coordinates:
-                            print("{" + f"{int(c.x)}, {int(-c.y)}" + "},")
-            
+                            string = string + "{" + f"{int(c.x)}, {int(-c.y)}" + "},\n"
+                        
+                        pyperclip.copy(string)
+                        print("Copied points to clipboard")
             if event.type == pg.MOUSEBUTTONDOWN:
                 self.coordinates.append(descale(self.mouse_pos))
                 self.coordinates.append(pygame.Vector2(0,100))
@@ -197,6 +202,20 @@ class Game:
         self.screen.blit(self.left_arm.canvas)
         self.left_arm.draw()
         self.right_arm.draw()
+
+        # lines
+        for i, c in enumerate(self.coordinates):
+            if i < len(self.coordinates) - 1:
+                next_c = self.coordinates[i+1]
+                if c.y == 100 or next_c.y == 100:
+                    continue
+                pygame.draw.line(self.screen, "white", scale(c), scale(next_c))
+            
+        
+        # draw rect
+        pos = scale(pygame.Vector2(-30, -110))
+        size = scale(pygame.Vector2(-20, -60))
+        pygame.draw.rect(self.screen, "green", (pos, size), 2)
 
         pg.display.update()
         pg.display.set_caption(f'{self.clock.get_fps() :.1f}')
