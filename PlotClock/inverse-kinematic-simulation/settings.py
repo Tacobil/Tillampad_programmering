@@ -6,7 +6,7 @@ FPS = 10
 
 BGC = (20,20,20)
 
-SCALE = pygame.Vector2(4.1,4.1)
+SCALE = pygame.Vector2(5, 5) # pygame.Vector2(4.1,4.1)
 
 L1 = 48
 L2 = 64

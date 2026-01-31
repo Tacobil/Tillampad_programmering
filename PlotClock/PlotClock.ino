@@ -6,15 +6,12 @@
 */
 
 /* Useful resources
-the math of inverse kinematics: https://www.youtube.com/watch?v=nW5FUVzYCKM
-number drawing simulation: https://scratch.mit.edu/projects/1267648991
+  the math behind inverse kinematics: https://www.youtube.com/watch?v=nW5FUVzYCKM
+  number drawing simulation: https://scratch.mit.edu/projects/1267648991
 */
 
 // All units in mm
 // 8 mm between each stud for lego
-
-
-
 
 #include <Servo.h>
 #include <RTClib.h>
@@ -39,12 +36,13 @@ const uint8_t SERVORIGHTPIN = 10;
 const uint8_t SERVOLIFTPIN = 11;
 const uint8_t BUTTONPIN = 2;
 
-// Other
-const uint8_t ANGLEOFFSET = 60;
-
+// Other variables
+const uint8_t ANGLEOFFSET = 60; // servo angle offset, giving servos optimal range
+float lastX, lastY;
 String inputString = "";  // stores incoming chars
 
-float lastX, lastY;
+
+
 
 /*
   Main setup.
@@ -61,16 +59,13 @@ void setup() {
   servoRight.attach(SERVORIGHTPIN);
   servoLift.attach(SERVOLIFTPIN);
   // set starting position
-  lastX = 37 + OFFSET;
-  lastY = 65;
-  setXY(lastX, lastY);
   lift(2);
+  command('q', "");
 
-
-  // rtc clock
   rtc.begin();
-  // rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); // to adjust time: uncomment, upload, comment, upload
+  // rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); // to readjust time: uncomment, upload, comment, upload
 }
+
 
 /*
   Main loop.
@@ -93,8 +88,9 @@ String getTime() {
   DateTime now = rtc.now();
   String hourStr = (now.hour() < 10 ? "0" : "") + String(now.hour(), DEC);
   String minuteStr = (now.minute() < 10 ? "0" : "") + String(now.minute(), DEC);
-
-  return hourStr + ":" + minuteStr;
+  String time = hourStr + ":" + minuteStr;
+  Serial.println(time);
+  return time;
 }
 
 
@@ -102,12 +98,14 @@ String getTime() {
   Function that handles commands.
   Commands:
     q     - set servo angles to 0
-    p     - set position for easy pen insert
-    a (n) - set servo to angle n
+    a (n) - set servo to angle n (0-180)
     c (r) - draw circle with radius r
     r (s) - draw square with size s
-    m (s) - draw string s to the screen (  only works for the following characters: '0123456789(=:'  )
+    m (s) - draw string s (only works for the following characters: '0123456789(=:')
     t     - draw the current time hh:mm
+    p     - draw points
+    l (s) - set lift to state s (0-2)
+
 
   Example:
     Message 'c 30' to draw a circle with radius 30 mm.
@@ -118,14 +116,11 @@ String getTime() {
 */
 void command(char keyword, String rest) {
   switch (keyword) {
-    case 'q':  // reset
-      Serial.println("reset");
-      servoLeft.write(90 - ANGLEOFFSET);
-      servoRight.write(90 + ANGLEOFFSET);
+    case 'q':  // reset angles
+      command('a', "90");
       break;
 
-    case 'a':  // angle
-      Serial.println("Set servo angles to " + String(rest.toInt()) + " degrees");
+    case 'a':  // set angle
       servoLeft.write(rest.toInt() - ANGLEOFFSET);
       servoRight.write(rest.toInt() + ANGLEOFFSET);
       break;
@@ -136,6 +131,7 @@ void command(char keyword, String rest) {
 
     case 'r':  // rect
       {
+        lift(1);
         int x = 0;
         int y = 60;
         int w = rest.toInt();
@@ -143,19 +139,12 @@ void command(char keyword, String rest) {
         setXY(x, y);
         lastX = x;
         lastY = y;
-        delay(1000);
-
+        lift(0);
         drawTo(x + w, y);
         drawTo(x + w, y + h);
         drawTo(x, y + h);
         drawTo(x, y);
       }
-      break;
-
-    case 'p':  // set position
-      lastX = 37 + OFFSET;
-      lastY = 65;
-      setXY(lastX, lastY);
       break;
     case 'm':  // draw message
       drawString(rest, OFFSET / 2 - 40, 50, 1);
@@ -164,11 +153,11 @@ void command(char keyword, String rest) {
       drawString(getTime(), OFFSET / 2 - 40, 50, 1);
       break;
 
-    case 'l':
+    case 'l': // set lift
       lift(rest.toInt());
       break;
     
-    case 'w':
+    case 'p': // draw points
       drawPoints();
       break;
   }
