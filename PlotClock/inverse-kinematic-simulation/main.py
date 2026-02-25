@@ -213,9 +213,6 @@ class Game:
             
         
         # draw rect
-        pos = scale(pygame.Vector2(-30, -110))
-        size = scale(pygame.Vector2(-20, -60))
-        pygame.draw.rect(self.screen, "green", (pos, size), 2)
 
         pg.display.update()
         pg.display.set_caption(f'{self.clock.get_fps() :.1f}')
