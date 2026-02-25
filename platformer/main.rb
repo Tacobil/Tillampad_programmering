@@ -1,6 +1,12 @@
+# thanks to https://www.jeffreythompson.org/collision-detection
+
 require 'ruby2d'
 
-# Player
+set width: 16*70
+set height: 9*70
+
+
+# ----PLAYER----
 $velocity_x = 0
 $velocity_y = 0
 keys = {"w" => 0, "a" => 0, "s" => 0, "d" => 0}
@@ -33,43 +39,69 @@ hitbox_rects = [
     ),
 ]
 
+COIN_RADIUS = 15
+COIN_COLOR = 'fuchsia'
+COIN_SECTORS = 16
+
 coins = [
     Circle.new(
-        x: 300, y: 175,
-        radius: 22,
-        sectors: 16,
-        color: 'fuchsia',
+        x: 200, y: 370,
+        radius: COIN_RADIUS,
+        sectors: COIN_SECTORS,
+        color: COIN_COLOR,
         z: 10
     ),
     Circle.new(
-        x: 350, y: 175,
-        radius: 22,
-        sectors: 16,
-        color: 'fuchsia',
+        x: 280, y: 370,
+        radius: COIN_RADIUS,
+        sectors: COIN_SECTORS,
+        color: COIN_COLOR,
         z: 10
     ),
     Circle.new(
-        x: 400, y: 175,
-        radius: 22,
-        sectors: 16,
-        color: 'fuchsia',
+        x: 360, y: 370,
+        radius: COIN_RADIUS,
+        sectors: COIN_SECTORS,
+        color: COIN_COLOR,
         z: 10
     ),
     Circle.new(
-        x: 450, y: 175,
-        radius: 22,
-        sectors: 16,
-        color: 'fuchsia',
+        x: 440, y: 370,
+        radius: COIN_RADIUS,
+        sectors: COIN_SECTORS,
+        color: COIN_COLOR,
+        z: 10
+    ),
+    Circle.new(
+        x: 520, y: 370,
+        radius: COIN_RADIUS,
+        sectors: COIN_SECTORS,
+        color: COIN_COLOR,
         z: 10
     ),
 ]
 
+100.times do |i|
+    coins << Circle.new(
+        x: i*20, y: 300,
+        radius: COIN_RADIUS,
+        sectors: COIN_SECTORS,
+        color: COIN_COLOR,
+        z: 10
+    )
+end
+
 # ---------------
 
+# Music
+song = Music.new('cool-background-music.mp3') # only a test song for now
+song.volume = 60
+song.play
 
-# COLLISION
+
+
+# ---COLLISION---
 # Collision check between two rectangles
-# thanks to https://www.jeffreythompson.org/collision-detection/rect-rect.php
 def rect_rect?(r1, r2)
     return (r1.x + r1.width > r2.x &&       # r1 right edge past r2 left
         r1.x < r2.x + r2.width &&       # r1 left edge past r2 right
@@ -78,7 +110,6 @@ def rect_rect?(r1, r2)
 end
 
 # Collision check between a rectangle and circle
-# thanks to https://www.jeffreythompson.org/collision-detection/circle-rect.php
 def rect_circle(r, c)
     test_x = c.x
     test_y = c.y
@@ -140,9 +171,13 @@ def collision(player, rects, direction)
 end
 
 def coin_check(player, coins)
-    coins.each do |coin|
+    coins.each_with_index do |coin, i|
         if rect_circle(player, coin)
             coin.remove
+            boom = Sound.new('coin.mp3')
+            # Play the sound
+            boom.play
+            coins.delete_at(i)
         end
     end
 
