@@ -1,0 +1,22 @@
+
+
+Player
+    Health
+    Acceleration + Gravity
+
+
+
+
+
+Levels
+    Screen segments
+    🗺️ Procedural Generation 
+            spelunky?
+
+
+
+Microgames
+    Simon Says
+    Stop
+    Random key
+    Charge bar
