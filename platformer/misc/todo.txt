@@ -4,6 +4,12 @@ Player
     Health
     Acceleration + Gravity
 
+Management
+    Folders for textures, sfx, misc
+    Separation of main script
+        main
+        player
+        map
 
 
 
@@ -20,3 +26,4 @@ Microgames
     Stop
     Random key
     Charge bar
+    Card swipe
