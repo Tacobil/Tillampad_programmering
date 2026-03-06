@@ -4,34 +4,6 @@ JUMPPOWER = 15
 COYOTE_JUMP = 7
 MAX_HEALTH = 100
 
-'''
-$velocity_x = 0
-$velocity_y = 0
-$acceleration_x = 0
-$acceleration_y = 0.7
-
-$air_time = 0
-$world_x = 0
-$world_y = 0
-$creative = false
-
-$player = Rectangle.new(
-    x: VW*0.05, y: VH*0.5,
-    width: 60, height: 60,
-    color: "teal",
-    z: 20
-)
-
-$health = 100
-$coins = 0
-
-$keys = {"w" => 0, "a" => 0, "s" => 0, "d" => 0}
-
-
-$map = nil
-'''
-
-
 class Player
     attr_accessor :map, :rect, :coins
 
@@ -44,7 +16,6 @@ class Player
         @air_time = 0
         @world_x = 0
         @world_y = 0
-        @creative = false
 
         @rect = Rectangle.new(
             x: x, y: y,
@@ -60,13 +31,9 @@ class Player
     def input(keys)
         @velocity_x = (keys["d"] - keys["a"]) * SPEED
 
-        if @creative == true
-            @velocity_y = (keys["s"] - keys["w"]) * SPEED
-        else
-            if keys["w"] == 1 && @air_time <= COYOTE_JUMP && @velocity_y >= 0
-                # jump
-                @velocity_y = -JUMPPOWER
-            end
+        # @velocity_y = (keys["s"] - keys["w"]) * SPEED # allow flying
+        if keys["w"] == 1 && @air_time <= COYOTE_JUMP && @velocity_y >= 0
+            @velocity_y = -JUMPPOWER
         end
     end
 
@@ -120,7 +87,7 @@ class Player
 
         
         # map change
-        if @rect.x + @rect.width < 0 && get_map(@world_x - 1, @world_y) # left        
+        if @rect.x + @rect.width < 0 && get_map(@world_x - 1, @world_y) # left       
             @rect.x = VW # move to right side
             @world_x -= 1
             set_map(@world_x, @world_y)

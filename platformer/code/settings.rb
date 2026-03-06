@@ -1,9 +1,10 @@
 require "ruby2d"
 
 
-set width: 16*70
-set height: 9*70
-set background: [0.3,0.4,1,1]
+set width: 16*70,
+height: 9*70,
+
+resizable: true
 
 COIN_AMOUNT = 10
 COIN_RADIUS = 24
@@ -13,7 +14,9 @@ COIN_SECTORS = 16
 VW = Window.width
 VH = Window.height
 
+
 $keys = {"w" => 0, "a" => 0, "s" => 0, "d" => 0}
+
 
 
 # ---COLLISION---
@@ -48,3 +51,32 @@ def rect_circle(r, c)
     
     return distance < c.radius
 end
+
+
+# Input
+on :key_down do |event|
+    if $keys[event.key]
+        $keys[event.key] = 1
+    end
+end
+
+on :key_up do |event|
+    if $keys[event.key]
+        $keys[event.key] = 0
+    end
+end
+
+
+
+
+
+
+map = [
+    [0,0,0,0,0,1,1],
+    [0,0,0,0,0,1,1],
+    [0,0,2,0,0,1,1],
+    [0,0,0,0,0,1,1],
+    [0,0,0,0,0,1,1],
+    [0,0,0,0,0,1,1],
+
+]

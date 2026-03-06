@@ -1,29 +1,29 @@
 
 
 Player
-    Health
-    Acceleration + Gravity
+[x]    Health
+[x]    Acceleration + Gravity
 
 Management
-    Folders for textures, sfx, misc
-    Separation of main script
-        main
-        player
-        map
+[x]    Folders for textures, sfx, misc
+[x]    Separation of main script
+[x]        main
+[x]        player
+[x]        map
 
 
 
 
 Levels
-    Screen segments
-    🗺️ Procedural Generation 
-            spelunky?
+[x]    Screen segments
+[]    🗺️ Procedural Generation 
+[]            spelunky?
 
 
 
 Microgames
-    Simon Says
-    Stop
-    Random key
-    Charge bar
-    Card swipe
+[]    Simon Says
+[]    Stop
+[]    Random key
+[]    Charge bar
+[]    Card swipe
