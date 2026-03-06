@@ -1,11 +1,12 @@
-# Player Constants
-SPEED = 8
-JUMPPOWER = 15
-COYOTE_JUMP = 7
-MAX_HEALTH = 100
 
 class Player
-    attr_accessor :map, :rect, :coins
+    SPEED = 8
+    JUMPPOWER = 15
+    COYOTE_JUMP = 7
+    MAX_HEALTH = 100
+
+
+    attr_accessor :rect, :coins
 
     def initialize(x, y)
         @velocity_x = 0
@@ -14,8 +15,6 @@ class Player
         @acceleration_y = 0.7
                 
         @air_time = 0
-        @world_x = 0
-        @world_y = 0
 
         @rect = Rectangle.new(
             x: x, y: y,
@@ -23,17 +22,17 @@ class Player
             color: 'teal',
             z: 20
         )
-        @health = 100
+        @health = Player::MAX_HEALTH
         @coins = 0
 
     end
 
     def input(keys)
-        @velocity_x = (keys["d"] - keys["a"]) * SPEED
+        @velocity_x = (keys["d"] - keys["a"]) * Player::SPEED
 
-        # @velocity_y = (keys["s"] - keys["w"]) * SPEED # allow flying
-        if keys["w"] == 1 && @air_time <= COYOTE_JUMP && @velocity_y >= 0
-            @velocity_y = -JUMPPOWER
+        # @velocity_y = (keys["s"] - keys["w"]) * Player::SPEED # allow flying
+        if keys["w"] == 1 && @air_time <= Player::COYOTE_JUMP && @velocity_y >= 0
+            @velocity_y = -Player::JUMPPOWER
         end
     end
 

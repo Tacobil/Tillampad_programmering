@@ -6,10 +6,6 @@ require_relative "map.rb"
 
 require_relative "old_map"
 
-$player = Player.new(VW*0.05, VH*0.5)
-
-
-
 # ---------------
 
 # UI
@@ -25,20 +21,6 @@ txt = Text.new(
 
 # ---------------
 
-# input handler
-def handle_input(keys)
-    $velocity_x = (keys["d"] - keys["a"]) * SPEED
-
-    if $creative == true
-        $velocity_y = (keys["s"] - keys["w"]) * SPEED
-    else
-        if keys["w"] == 1 && $air_time < COYOTE_JUMP && $velocity_y >= 0
-            # jump
-            $velocity_y = -JUMPPOWER
-        end
-    end
-end
-
 $image = Image.new(
     "textures/sign.png",
     x: VW*0.5-VW*0.5/2, y: VH*0.6-VH*0.9/2,
@@ -46,9 +28,23 @@ $image = Image.new(
     z: 10
 )
 
-
-
 $image.remove
+
+
+class Game
+    attr_accessor :world_x, :world_y :map
+    def initialize()
+        @map = []
+        @world_x = 0
+        @world_y = 0
+
+        @player = Player.new(self)
+
+    end
+
+end
+
+
 
 def coin_check(player)
     coins = player.map["coins"]
