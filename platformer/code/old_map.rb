@@ -185,72 +185,69 @@ $maps = [
 
 def set_map(x, y)
     $maps.each do |map|
-
-        if map["x"] == x && map["y"] == y
-            # show
-            $player.map = map
-            map["hitboxes"].each do |ins|
-                ins.add
-            end
-
-            map["coins"].each do |ins|
-                ins.remove
-            end
-
-            map["decoration"].each do |ins|
-                ins.add
-            end
-
-            map["interactive"].each do |ins|
-                ins.add
-            end
-
-            if map["coin_textures"]
-                map["coin_textures"].each do |ins|
-                    ins.add
-                end
-            else
-                map["coin_textures"] = []
-
-                map["coins"].each do |ins|
-                    sprite = Sprite.new(
-                        'textures/purple_coin.png',
-                        clip_width: 48,
-                        x: ins.x - COIN_RADIUS, y: ins.y - COIN_RADIUS,
-                        time: 80,
-                        loop: true
-                    )
-                    sprite.play
-                    map["coin_textures"] << sprite
-
-                end
-            end
-        else
-            # hide
-            map["hitboxes"].each do |ins|
-                ins.remove
-            end
-
-            map["coins"].each do |ins|
-                ins.remove
-            end
-
-            map["decoration"].each do |ins|
-                ins.remove
-            end
-
-            map["interactive"].each do |ins|
-                ins.remove
-            end
-
-            if map["coin_textures"]
-                map["coin_textures"].each do |ins|
-                    ins.remove
-                end
-            end
+        # hide
+        map["hitboxes"].each do |ins|
+            ins.remove
         end
 
+        map["coins"].each do |ins|
+            ins.remove
+        end
+
+        map["decoration"].each do |ins|
+            ins.remove
+        end
+
+        map["interactive"].each do |ins|
+            ins.remove
+        end
+
+        if map["coin_textures"]
+            map["coin_textures"].each do |ins|
+                ins.remove
+            end
+        end
     end
+
+
+    map = get_map(x, y)
+    map["hitboxes"].each do |ins|
+        ins.add
+    end
+
+    map["coins"].each do |ins|
+        ins.remove
+    end
+
+    map["decoration"].each do |ins|
+        ins.add
+    end
+
+    map["interactive"].each do |ins|
+        ins.add
+    end
+
+    if map["coin_textures"]
+        map["coin_textures"].each do |ins|
+            ins.add
+        end
+    else
+        map["coin_textures"] = []
+
+        map["coins"].each do |ins|
+            sprite = Sprite.new(
+                'textures/purple_coin.png',
+                clip_width: 48,
+                x: ins.x - COIN_RADIUS, y: ins.y - COIN_RADIUS,
+                time: 80,
+                loop: true
+            )
+            sprite.play
+            map["coin_textures"] << sprite
+
+        end
+    end
+    return map
 end
 
 # get map at coordinate (x, y)

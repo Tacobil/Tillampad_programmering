@@ -16,6 +16,25 @@ tileset = Tileset.new(
     spacing: 2,
 )
 
+# UI
+txt = Text.new(
+    'Hello',
+    x: 20, y: 20,
+    z: 100,
+    size: 32,
+    color: "black",
+    style: "bold",
+)
+
+$image = Image.new(
+    "textures/sign.png",
+    x: VW*0.5-VW*0.5/2, y: VH*0.6-VH*0.9/2,
+    width: VW*0.5, height: VH*0.9,
+    z: 10
+)
+
+$image.remove
+
 tileset.define_tile('red', 0, 0)
 tileset.define_tile('blue', 1, 0)
 tileset.define_tile('green', 0, 1)
