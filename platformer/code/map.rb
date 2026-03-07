@@ -1,3 +1,6 @@
+require_relative "elevator.rb"
+require_relative "jump_orb.rb"
+
 class Map
     attr_accessor :x, :y, :objects, :tiles
     attr_reader :spawn_x, :spawn_y, :zoom
@@ -34,8 +37,14 @@ class Map
         end
 
         @objects = [
-            Elevator.new(posx(0), posy(-1), @tile_size*3, @tile_size, "green", posx(0), posy(-9), 2, 0.2, "quint"),
+            Elevator.new(posx(0), posy(-1), @tile_size*3, @tile_size, "green", posx(0), posy(-9), 1.5, 0.1, "quint"),
             Elevator.new(posx(5), posy(-12), @tile_size, @tile_size, "green", posx(15), posy(-15), 3, 1, "sine"),
+            JumpOrb.new(posx(6.5), posy(-18.5), 3),
+            JumpOrb.new(posx(3.5), posy(-20.5), 3),
+            JumpOrb.new(posx(3.5), posy(-22.5), 3),
+            JumpOrb.new(posx(6.5), posy(-24.5), 3),
+
+
         ]
         @tiles = []
         @background = Rectangle.new(

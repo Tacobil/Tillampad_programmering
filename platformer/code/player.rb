@@ -1,40 +1,51 @@
 
 class Player
-    SPEED = 1 * 60
+    TOP_SPEED = 1.5 * 60
     JUMPPOWER = 280
-    GRAVITY = 1200
+    GRAVITY = 1000
     COYOTE_JUMP = 4/60.0
 
     MAX_HEALTH = 100
     WIDTH = UNIT
     HEIGHT = UNIT
-    AIR_JUMPS = 1
+    AIR_JUMPS = 0
 
-    attr_accessor :rect
+    JUMP_COLORS = [
+        'teal',
+        [1, 0.3, 0.3, 1],
+        [0.6, 0.3, 1, 1],
+    ]
+
+    attr_accessor :rect, :jumps
 
     def initialize(game, x, y)
         @game = game
+
+        @input_x = 0
+        @input_y = 0
+
         @velocity_x = 0
         @velocity_y = 0
         @acceleration_x = 0
-        @acceleration_y = Player::GRAVITY
+        @acceleration_y = GRAVITY
 
         @world_x = 0
         @world_y = 0
                 
         @air_time = 0.0
-        @jumps = 0
+        @jumps = AIR_JUMPS + 1
+        @has_jumped = false
 
         @scale = 1
 
         @rect = Rectangle.new(
             x: x, y: y,
-            width: Player::WIDTH, height: Player::HEIGHT,
+            width: WIDTH, height: HEIGHT,
             color: 'teal',
             z: 20
         )
 
-        @health = Player::MAX_HEALTH
+        @health = MAX_HEALTH
     end
 
     def set_scale(scale)
@@ -43,32 +54,45 @@ class Player
         end
 
         @scale = scale
-        @rect.width = Player::WIDTH * scale
-        @rect.height = Player::HEIGHT * scale
+        @rect.width = WIDTH * scale
+        @rect.height = HEIGHT * scale
     end
 
     def jump
-        if @jumps <= Player::AIR_JUMPS
-            if @velocity_y >= 0
-                p "set"
-                @velocity_y = -Player::JUMPPOWER * @scale
-            else
-                p "inc"
-                @velocity_y *= 0.8
-                @velocity_y += -Player::JUMPPOWER * @scale
-            end
-            @jumps += 1
+        if @jumps <= 0 # don't jump if player has no jumps left
+            return
         end
+
+        if @velocity_y >= 0
+            @velocity_y = -JUMPPOWER * @scale
+        else
+            @velocity_y *= 0.8
+            @velocity_y += -JUMPPOWER * @scale
+        end
+        self.set_jumps(@jumps-1)
+        @has_jumped = true
+    end
+
+    def set_jumps(jumps)
+        @jumps = jumps
+        @rect.color = JUMP_COLORS[@jumps] or JUMP_COLORS[-1]
     end
 
     def input(keys)
-        @velocity_x = (keys["d"] - keys["a"]) * Player::SPEED * @scale
-        # @velocity_y = (keys["s"] - keys["w"]) * Player::SPEED * @scale # allow flying
-        self.set_scale(@scale + (keys["i"] - keys["o"])*0.2)
+        @velocity_x = (keys["d"] - keys["a"]) * TOP_SPEED * @scale
+        # @velocity_y = (keys["s"] - keys["w"]) * TOP_SPEED * @scale # allow flying
+        self.set_scale(@scale + (keys["i"] - keys["o"])*0.1)
     end
 
-    def collision(rects, direction, dt)
-        rects.each do |r| # iterate all hitbox_rects
+    def collision(objects, direction, dt)
+        objects.each do |r| # iterate all hitbox_rects
+            if r.is_a? JumpOrb
+                if rect_circle(@rect, r)
+                    r.interact(self)
+                end
+                next
+            end
+
             if rect_rect?(r, @rect)
                 if direction == "horizontal"
                     @velocity_x = 0
@@ -85,8 +109,11 @@ class Player
                         @rect.y = r.y + r.height + 1 # set player's top edge to object's bottom edge
                     else
                         @rect.y = r.y - @rect.height # set player's bottom edge to object's top edge
+                        
                         @air_time = 0
-                        @jumps = 0
+                        self.set_jumps(AIR_JUMPS + 1)
+                        @has_jumped = false
+
                         # apply velocity if object is moving
                         if r.respond_to?(:velocity_x) and r.respond_to?(:velocity_y)
                             @velocity_x += r.velocity_x
@@ -144,21 +171,25 @@ class Player
 
     def update(dt)
         map = @game.map
+        self.input($keys)
+
         @velocity_x += @acceleration_x * Math.sqrt(@scale) * dt
         @velocity_y += @acceleration_y * Math.sqrt(@scale) * dt
+
         @air_time += dt
 
         @rect.y += @velocity_y * dt
-        self.collision(map.tiles, "vertical", dt)
-        self.collision(map.objects, "vertical", dt)
+        self.collision(map.tiles + map.objects, "vertical", dt)
 
         @rect.x += @velocity_x * dt
-        self.collision(map.tiles, "horizontal", dt)
-        self.collision(map.objects, "horizontal", dt)
+        self.collision(map.tiles + map.objects, "horizontal", dt)
 
-        if @jumps == 0 and @air_time > Player::COYOTE_JUMP
-            @jumps += 1
+        # player is airborne and haven't jumped; remove one jump.
+        if @has_jumped == false && @air_time > COYOTE_JUMP && @jumps == AIR_JUMPS + 1
+            @has_jumped = true
+            @jumps -= 1
         end
+            
 
         if @rect.y > VH
             @rect.y = -@rect.height

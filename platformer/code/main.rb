@@ -2,7 +2,6 @@
 require_relative "settings.rb"
 
 require_relative "player.rb"
-require_relative "elevator.rb"
 require_relative "map.rb"
 
 
@@ -21,7 +20,6 @@ class Game
 
     def update(dt)
         @map.update(dt)
-        @player.input($keys)
         @player.update(dt)
         # coin_check($player)
     
