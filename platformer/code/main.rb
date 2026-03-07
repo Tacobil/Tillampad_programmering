@@ -4,15 +4,17 @@ require_relative "settings.rb"
 require_relative "player.rb"
 require_relative "map.rb"
 
-
-
 class Game
-    attr_accessor :world_x, :world_y, :map, :player
+    attr_accessor :map, :maps, :player
     def initialize()
-        @map = Map.new(0,0, nil, $map)
-        Map.set_map(@map.x, @map.y)
+        @maps = [
+            Map.new(0,0,$map1),
+            Map.new(1,0,$map2),
+            Map.new(2,0,$map3),
+        ]
 
-        @coins = 0
+        @map = @maps[0]
+        Map.set_map(@map.x, @map.y)
 
         @player = Player.new(self, @map.spawn_x, @map.spawn_y)
         @player.set_scale(@map.zoom)
@@ -61,9 +63,24 @@ update do
     game.update(dt)
 end
 
+map = 0
+
 on :key_down do |event|
-    if event.key == "w" or event.key == "space"
+    case event.key
+    when "w"
         game.player.jump
+    when "space"
+        game.player.jump
+    when "r"
+        clear
+        game = Game.new
+    when "e"
+        map = (map + 1) % 3
+        game.map = Map.set_map(map,0)
+        game.player.set_scale(game.map.zoom)
+        game.player.rect.x = game.map.spawn_x
+        game.player.rect.y = game.map.spawn_y
+
     end
 end
 

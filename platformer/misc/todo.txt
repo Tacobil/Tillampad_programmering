@@ -5,6 +5,7 @@ Player
     [x]    Acceleration + Gravity
     []     Acceleration movement
     []     Improved Collision Detection for moving objects
+    []     Bug: Lower gravity when map is smaller
 
 Management
     [x]    Folders for textures, sfx, misc
@@ -34,6 +35,10 @@ Microgames
     []    Random key
     []    Charge bar
     []    Card swipe
+
+
+Bonus
+    []    Use mouse to draw rectangle hitboxes with fixed a fixed area
 
 Efficiency
     []    Greedy Rectangle Merging for tiles https://emanueleferonato.com/2026/01/28/greedy-rectangle-merging-turning-binary-grids-into-simple-geometry-javascript-example/

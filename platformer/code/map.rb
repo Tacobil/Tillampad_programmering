@@ -1,14 +1,15 @@
 require_relative "elevator.rb"
 require_relative "jump_orb.rb"
+require_relative "coin.rb"
 
 class Map
     attr_accessor :x, :y, :objects, :tiles
-    attr_reader :spawn_x, :spawn_y, :zoom
+    attr_reader :spawn_x, :spawn_y, :zoom, :spawn_x, :spawn_y
 
     @@all = []
     @@current_map = nil
 
-    def initialize(x, y, tileset, map)
+    def initialize(x, y, map)
         @x = x
         @y = y
 
@@ -35,15 +36,18 @@ class Map
             @offset_x = remaining_width / 2
             @offset_y = 0
         end
+        @zoom = @tile_size / UNIT.to_f
+
 
         @objects = [
             Elevator.new(posx(0), posy(-1), @tile_size*3, @tile_size, "green", posx(0), posy(-9), 1.5, 0.1, "quint"),
             Elevator.new(posx(5), posy(-12), @tile_size, @tile_size, "green", posx(15), posy(-15), 3, 1, "sine"),
-            JumpOrb.new(posx(6.5), posy(-18.5), 3),
-            JumpOrb.new(posx(3.5), posy(-20.5), 3),
-            JumpOrb.new(posx(3.5), posy(-22.5), 3),
-            JumpOrb.new(posx(6.5), posy(-24.5), 3),
-
+            JumpOrb.new(posx(6.5), posy(-18.5), @zoom, 3),
+            JumpOrb.new(posx(3.5), posy(-20.5), @zoom, 3),
+            JumpOrb.new(posx(3.5), posy(-22.5), @zoom, 3),
+            JumpOrb.new(posx(6.5), posy(-24.5), @zoom, 3),
+            JumpOrb.new(posx(3.5), posy(-3.5), @zoom, 3),
+            
 
         ]
         @tiles = []
@@ -52,37 +56,44 @@ class Map
             width: @width * @tile_size,
             height: @height * @tile_size,
             color: [0.2,0.3,0.9,1],
-            z: 0
+            z: -10
         )
 
         @spawn_x = 0
         @spawn_y = 0
 
-        map.each_with_index do |row, y|
-            row.each_with_index do |tile, x|
-                c_o = ((x + y) % 2) * -0.03
+        map.each_with_index do |row, ty|
+            row.each_with_index do |tile, tx|
+                px = tx*@tile_size + @offset_x
+                py = ty*@tile_size + @offset_y
+
+
+                c_o = ((tx + ty) % 2) * -0.03
                 case tile
-                when 1
-                    @tiles << Rectangle.new(
-                        x: x*@tile_size + @offset_x, y: y*@tile_size + @offset_y, 
+                when G
+=begin
+                    a = Rectangle.new(
+                        x: px, y: py, 
                         width: @tile_size, height: @tile_size,
                         color: [0.5+c_o, 0.5+c_o, 1+c_o, 1]
                     )
-
-                when 2
-                    @tiles << Rectangle.new(
-                        x: x*@tile_size + @offset_x, y: y*@tile_size + @offset_y, 
+=end
+                    a = Image.new(
+                        "textures/blue_tile_16x16.png",
+                        x: px, y: py, z: 1,
                         width: @tile_size, height: @tile_size,
-                        color: [0.5, 1, 1, 1]
+                        rotate: 90,
                     )
+                    @tiles << a
+                when C
+                    @objects << Coin.new(px, py, @tile_size)
                 when P
-                    @spawn_x = @offset_x + x * @tile_size
-                    @spawn_y = @offset_y + y * @tile_size
+                    @spawn_x = px
+                    @spawn_y = py
                 end
             end
         end
 
-        @zoom = @tile_size / UNIT.to_f
 
         self.hide
         
@@ -105,7 +116,9 @@ class Map
 
     def update(dt)
         objects.each do |obj|
-            obj.update(dt)
+            if obj.respond_to? :update
+                obj.update(dt)
+            end
         end
 
     end
@@ -117,6 +130,7 @@ class Map
         @tiles.each do |tile|
             tile.add
         end
+        @background.add
     end
 
     def hide()
@@ -126,12 +140,11 @@ class Map
         @tiles.each do |obj|
             obj.remove
         end
-
+        @background.remove
     end
     
     def Map.get_map(x, y)
         @@all.each do |map|
-            p map.class
             if map.x == x and map.y == y
                 return map
             end
@@ -151,7 +164,7 @@ class Map
         map.show
         
         @@current_map = map
-
+        return map
     end
 end
 
