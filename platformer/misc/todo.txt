@@ -42,6 +42,9 @@ Bonus
     []    Conveyors
     []    Pushboxes
     [x]   Narrator
+    
+Bugs
+    [x]    Text goes outside boundary
 
 Efficiency
     []    Greedy Rectangle Merging for tiles https://emanueleferonato.com/2026/01/28/greedy-rectangle-merging-turning-binary-grids-into-simple-geometry-javascript-example/

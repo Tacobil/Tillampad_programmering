@@ -12,6 +12,8 @@ class Speaker
 		@rect = Rectangle.new(width: WIDTH, height: HEIGHT, x: X, y: Y, z: 100, color: COLOR)
 		@voice = Sound.new(voice_path)
 
+    @visible = false
+
     @delays = {
       "" => 0.03,
       " " => 0.06,
@@ -26,10 +28,13 @@ class Speaker
     @current_delay = 0
     @full_message = ""
     @speaking = false
+    
 
     @text_queue = [
       "ooo ooo aa ! aa !",
-      "press some keys to move idk which tho"
+      "press some keys to move idk which tho",
+      "Hi! Welcome to this game. Move with your keys: WASD, or arrow keys :>",
+      "This is a really long message. I really hope it scales well, otherwise I'll be pissed. Please work so I can go to sleep!",
     ]
 
 
@@ -113,13 +118,18 @@ class Speaker
     @speaking = true
     @text.text = ""
     @hint.color.opacity = 0
-
+    @text.size = 32
 	end
 
   def continue
     if @speaking # skip
       @speaking = false
       @text.text = @full_message
+
+      while @text.width > @text_frame.width * 0.9
+        @text.size -= 1
+      end
+
       centerize(@text, @text_frame)
     elsif @text_queue.length > 0
       self.speak(@text_queue.delete_at(0), nil)
@@ -130,6 +140,8 @@ class Speaker
 
   def update(dt)
     @timer += dt
+
+
 
     if @speaking == false and @timer > 1 and @hint.color.opacity < 1
       @hint.color.opacity += dt
@@ -149,6 +161,11 @@ class Speaker
           end
 
           @text.text += next_char
+          
+          while @text.width > @text_frame.width * 0.9
+            @text.size -= 1
+          end
+
           centerize(@text, @text_frame)
 
           @voice.play
