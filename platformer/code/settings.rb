@@ -1,6 +1,5 @@
 require "ruby2d"
 
-
 set width: 16*64,
 height: 9*64,
 

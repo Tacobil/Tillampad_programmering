@@ -79,7 +79,7 @@ class Map
                     )
 =end
                     a = Image.new(
-                        "textures/blue_tile_16x16.png",
+                        "textures/archive/blue_tile_16x16.png",
                         x: px, y: py, z: 1,
                         width: @tile_size, height: @tile_size,
                         rotate: 90,
