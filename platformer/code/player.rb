@@ -3,7 +3,7 @@ class Player
 
     # Celeste
     # Movement
-=begin
+
     MOVE_SPEED = 9
     ACCELERATION = 13
     DECCELERATION = 16
@@ -19,8 +19,8 @@ class Player
     JUMP_BUFFER_TIME = 0.1
     
     FALL_GRAVITY_MUL = 2
-=end
 
+=begin
     # Super Meat Boy
     # Movement
     MOVE_SPEED = 14
@@ -39,7 +39,6 @@ class Player
     
     FALL_GRAVITY_MUL = 1.9
 
-=begin
     # Hollow Knight
     # Movement
     MOVE_SPEED = 9

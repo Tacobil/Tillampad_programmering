@@ -3,6 +3,7 @@ require_relative "settings.rb"
 
 require_relative "player.rb"
 require_relative "map.rb"
+require_relative "speaker.rb"
 
 class Game
     attr_accessor :map, :maps, :player
@@ -12,12 +13,15 @@ class Game
             Map.new(1,0,$map2),
             Map.new(2,0,$map3),
         ]
+        @narrator = Speaker.new("Narrator", "textures/speaker/narrator.png", 0.7, nil, 100)
+        # @narrator = Speaker.new("Narrator", "textures/speaker/unknown.png", 0.5, nil, 100)
 
         @map = @maps[0]
         Map.set_map(@map.x, @map.y)
 
         @player = Player.new(self, @map.spawn_x, @map.spawn_y)
         @player.set_scale(@map.zoom)
+        @narrator.speak("hi!", nil)
     end
 
     def update(dt)

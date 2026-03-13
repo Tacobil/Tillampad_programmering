@@ -62,6 +62,19 @@ def sign(n)
     end
 end
 
+def anchor_position(n, element_size, anchor_percentage)
+    return n - element_size * anchor_percentage
+end
+
+def center(n, element_size)
+    return anchor_position(n, element_size, 0.5)
+end
+
+def centerize(rect, other_rect)
+    rect.x = other_rect.x + other_rect.width / 2 - rect.width / 2
+    rect.y = other_rect.y + other_rect.height / 2 - rect.height / 2
+end
+
 
 # Window rect
 Rectangle.new(
@@ -121,6 +134,21 @@ $map1 = [
     [_,_,_,_,_,G,G,G,G,G,G,G,G,G,G,G,G],
 ]
 
+D = 2
+B = 3
+M = 4
+S = 5
+
+$celeste_map = [
+    [B,B,B,B,M,B,B,B,B,B,B,B,B,B,D,D,D,D,D,D,D,M,D,D,D,S,S,S,S,S,S,_,_,_,_,_,S,S,S,S],
+    [B,B,B,B,M,_,B,B,B,_,_,_,_,B,B,D,D,D,D,D,D,M,_,_,_,_,_,_,_,_,_,_,_,_,_,_,S,S,S,S],
+    [D,D,_,_,M,_,_,_,M,_,_,_,_,D,D,D,D,D,_,_,_,M,_,_,_,_,_,_,_,_,_,_,_,_,_,B,B,B,B,B],
+    [D,D,_,_,M,M,M,_,M,_,_,_,_,D,D,D,_,_,_,_,_,M,_,_,_,_,_,_,_,_,_,_,_,_,_,B,B,B,B,B],
+    [D,D,_,_,M,_,_,_,M,_,_,_,_,D,D,D,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,B,B,B,B,B,B],
+    [D,D,_,_,M,_,_,_,M,_,_,_,_,D,D,D,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,B,B,B,B,B],
+    [D,D,_,_,M,M,M,M,M,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,B,B,B,B,B],
+]
+
 $map2 = [
     [],
     [],
@@ -136,5 +164,8 @@ $map3 = [
     [G]*60,
 
 ]
+
+
+
 
 UNIT = 16
