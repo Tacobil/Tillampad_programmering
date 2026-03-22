@@ -6,50 +6,43 @@ require_relative "map.rb"
 require_relative "speaker.rb"
 
 class Game
-    attr_accessor :map, :maps, :player, :narrator
+    attr_accessor :player
     def initialize()
-        @maps = [
-            Map.new(0,0,$map1),
-            Map.new(1,0,$map2),
-            Map.new(2,0,$map3),
-        ]
         @narrator = Speaker.new("Narrator", "textures/speaker/narrator.png", 0.7, "sfx/voice_toriel.wav")
-        # @narrator = Speaker.new("Narrator", "textures/speaker/unknown.png", 0.5, nil)
+        @player = Player.new(self)
 
-        @map = @maps[0]
-        Map.set_map(@map.x, @map.y)
-
-        @player = Player.new(self, @map.spawn_x, @map.spawn_y)
+        Map.set_map(0, 0)
         @player.set_scale(@map.zoom)
-        @narrator.speak("hi! i love burgers", nil)
+
+        @narrator.speak("hi! i am narrator", nil)
+
+    end
+
+    def set_map
+
+    end
+
+    def key_down(key)
+        case key
+        when "w"
+            @player.jump
+        when "space"
+            @player.jump
+        end
+        @narrator.skip
+    end
+
+    def mouse_down(event)
+        @narrator.skip
     end
 
     def update(dt)
         @map.update(dt)
         @player.update(dt)
         @narrator.update(dt)
-    
-        # txt.text = "coins: #{$player.coins} / #{COIN_AMOUNT}"
     end
 
 end
-
-
-
-def coin_check(player)
-    coins = player.map["coins"]
-
-    coins.each_with_index do |coin, i|
-        if rect_circle(player.rect, coin)
-            coin.remove
-            Sound.new('sfx/coin.mp3').play
-            coins.delete_at(i)
-
-            $player.coins += 1
-        end
-    end
-end
-
 
 game = Game.new()
 
@@ -67,30 +60,32 @@ update do
     game.update(dt)
 end
 
-
 map = 0
 
+@maps = [
+    Map.new(0,0,$map1),
+    Map.new(1,0,$map2),
+    Map.new(2,0,$map3),
+]
+
 on :key_down do |event|
-  case event.key
-  when "w"
-      game.player.jump
-  when "space"
-      game.player.jump
-  when "r"
-      clear
-      game = Game.new
-  when "e"
-      map = (map + 1) % 3
-      game.map = Map.set_map(map,0)
-      game.player.set_scale(game.map.zoom)
-      game.player.rect.x = game.map.spawn_x
-      game.player.rect.y = game.map.spawn_y
-  end
-  game.narrator.continue
+    game.key_down(event.key)
+    # debugging events
+    case event.key
+    when "r"
+        clear
+        game = Game.new
+    when "e"
+        map = (map + 1) % 3
+        game.map = Map.set_map(map,0)
+        game.player.set_scale(game.map.zoom)
+        game.player.rect.x = game.map.spawn_x
+        game.player.rect.y = game.map.spawn_y
+    end
 end
 
 on :mouse_down do |event|
-  game.narrator.continue
+    game.mouse_down(event)
 end
 
 show

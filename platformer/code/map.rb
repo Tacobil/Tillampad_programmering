@@ -71,19 +71,19 @@ class Map
                 c_o = ((tx + ty) % 2) * -0.03
                 case tile
                 when G
-=begin
                     a = Rectangle.new(
                         x: px, y: py, 
                         width: @tile_size, height: @tile_size,
                         color: [0.5+c_o, 0.5+c_o, 1+c_o, 1]
-                    )
-=end
-                    a = Image.new(
-                        "textures/archive/blue_tile_16x16.png",
+                        )
+=begin
+                        a = Image.new(
+                        "textures/grass/grass.png",
                         x: px, y: py, z: 1,
                         width: @tile_size, height: @tile_size,
                         rotate: 90,
-                    )
+                        )
+=end
                     @tiles << a
                 when C
                     @objects << Coin.new(px, py, @tile_size)
@@ -166,6 +166,13 @@ class Map
         @@current_map = map
         return map
     end
-end
 
+    # getters
+    def Map.current_map
+        return @@current_map
+    end
+    def Map.all
+        return @@all
+    end
+end
 

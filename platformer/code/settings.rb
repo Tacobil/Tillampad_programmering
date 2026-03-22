@@ -1,5 +1,6 @@
 require "ruby2d"
 
+
 set width: 16*64,
 height: 9*64,
 
@@ -75,8 +76,9 @@ def centerize(rect, other_rect)
 end
 
 
+
 # Window rect
-Rectangle.new(
+$window_rect = Rectangle.new(
     x: 0, y: 0, z: -100,
     width: VW, height: VH,
     color: [0.1,0.1,0.1,1]

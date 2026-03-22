@@ -1,3 +1,4 @@
+
 class Player
 
     # Celeste
@@ -76,7 +77,7 @@ class Player
 
     attr_accessor :rect, :jumps, :coins
 
-    def initialize(game, x, y)
+    def initialize(game)
         @game = game
 
         @move_input = 0
