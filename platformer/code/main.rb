@@ -10,16 +10,21 @@ class Game
     def initialize()
         @narrator = Speaker.new("Narrator", "textures/speaker/narrator.png", 0.7, "sfx/voice_toriel.wav")
         @player = Player.new(self)
+        @maps = [
+            Map.new(0,0,$map1),
+            Map.new(1,0,$map2),
+            Map.new(2,0,$map3),
+        ]
 
-        Map.set_map(0, 0)
-        @player.set_scale(@map.zoom)
-
-        @narrator.speak("hi! i am narrator", nil)
-
+        self.set_map(0,0)
     end
 
-    def set_map
-
+    def set_map(x, y)
+        map = Map.set_map(x, y)
+        
+        @player.set_scale(map.zoom)
+        @player.rect.x = map.spawn_x
+        @player.rect.y = map.spawn_y
     end
 
     def key_down(key)
@@ -37,8 +42,10 @@ class Game
     end
 
     def update(dt)
-        @map.update(dt)
-        @player.update(dt)
+        map = Map.current_map
+        
+        map.update(dt)
+        @player.update(dt, map.tiles + map.objects)
         @narrator.update(dt)
     end
 
@@ -62,11 +69,7 @@ end
 
 map = 0
 
-@maps = [
-    Map.new(0,0,$map1),
-    Map.new(1,0,$map2),
-    Map.new(2,0,$map3),
-]
+
 
 on :key_down do |event|
     game.key_down(event.key)
@@ -77,10 +80,7 @@ on :key_down do |event|
         game = Game.new
     when "e"
         map = (map + 1) % 3
-        game.map = Map.set_map(map,0)
-        game.player.set_scale(game.map.zoom)
-        game.player.rect.x = game.map.spawn_x
-        game.player.rect.y = game.map.spawn_y
+        game.set_map(map, 0)
     end
 end
 

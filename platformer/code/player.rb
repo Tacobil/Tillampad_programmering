@@ -97,7 +97,6 @@ class Player
         @scale = 1
 
         @rect = Rectangle.new(
-            x: x, y: y,
             width: WIDTH, height: HEIGHT,
             color: 'teal',
             z: 20
@@ -236,7 +235,7 @@ class Player
         end
     end
 
-    def update(dt)
+    def update(dt, objects)
         self.input($keys)
 
         # Movement, https://youtu.be/KbtcEVCM7bw?si=sFKXjFfIVndh50TN&t=108
@@ -266,11 +265,11 @@ class Player
         @air_time += dt
 
         @rect.y += @velocity_y * dt
-        self.collision(@game.map.tiles + @game.map.objects, "vertical", dt)
+        self.collision(objects, "vertical", dt)
 
         @rect.x += @velocity_x * dt
         
-        self.collision(@game.map.tiles + @game.map.objects, "horizontal", dt)
+        self.collision(objects, "horizontal", dt)
 
         # player is airborne and haven't jumped; remove one jump.
         if @has_jumped == false && @air_time > JUMP_COYOTE_TIME && @jumps == AIR_JUMPS + 1

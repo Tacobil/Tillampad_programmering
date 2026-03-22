@@ -152,15 +152,17 @@ class Map
     end
 
     def Map.set_map(x, y)
+        puts x, y
         map = Map.get_map(x, y)
         if map == nil
             raise "Invalid map coordinate"
         end
 
+        
         if @@current_map
             @@current_map.hide
         end
-
+        
         map.show
         
         @@current_map = map
