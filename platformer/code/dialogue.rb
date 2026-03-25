@@ -1,7 +1,6 @@
-require 'word_wrap'
-require 'word_wrap/core_ext'
 
-class Speaker
+
+class Dialogue
 	WIDTH = VW * 0.8
 	HEIGHT = VH * 0.3
 	X = center(VW*0.5, WIDTH)
@@ -111,7 +110,6 @@ class Speaker
 	
 	def speak(text, attributes)
 		# attributes: skippable, unknown
-		puts text
 
 		self.set_visibility(true)
 		@text.text = ""
@@ -123,8 +121,8 @@ class Speaker
 		@hint.color.opacity = 0
 	end
 
-	def add_to_queue(text_array)
-
+	def add_to_queue(text)
+		@text_queue << @text
 	end
 
 	def skip

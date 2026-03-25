@@ -3,19 +3,19 @@ require_relative "settings.rb"
 
 require_relative "player.rb"
 require_relative "map.rb"
-require_relative "speaker.rb"
+require_relative "dialogue.rb"
 
 class Game
     attr_accessor :player
     def initialize()
-        @narrator = Speaker.new("Narrator", "textures/speaker/narrator.png", 0.7, "sfx/voice_toriel.wav")
+        @narrator = Dialogue.new("Narrator", "textures/speaker/narrator.png", 0.7, "sfx/voice_toriel.wav")
         @player = Player.new(self)
         @maps = [
             Map.new(0,0,$map1),
             Map.new(1,0,$map2),
             Map.new(2,0,$map3),
         ]
-
+        
         self.set_map(0,0)
     end
 
