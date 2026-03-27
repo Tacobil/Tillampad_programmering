@@ -4,7 +4,7 @@ require_relative "coin.rb"
 
 class Map
     attr_accessor :x, :y, :objects, :tiles
-    attr_reader :spawn_x, :spawn_y, :zoom, :spawn_x, :spawn_y
+    attr_reader :spawn_x, :spawn_y, :zoom
 
     @@all = []
     @@current_map = nil
