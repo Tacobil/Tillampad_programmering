@@ -1,7 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="8" tileheight="8" infinite="1" nextlayerid="5" nextobjectid="2">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="8" tileheight="8" infinite="1" nextlayerid="8" nextobjectid="5">
  <tileset firstgid="1" source="../tilesets/nightfield-tileset.tsx"/>
  <tileset firstgid="208" source="../tilesets/cuteforest-tileset.tsx"/>
+ <layer id="6" name="Test" width="30" height="20">
+  <data encoding="csv">
+   <chunk x="0" y="0" width="16" height="16">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,214,215,254,256,256,255,257,0,0,0,
+0,25,26,26,26,27,233,234,216,0,0,294,0,0,0,0,
+25,26,26,26,26,26,27,79,80,0,0,294,0,0,0,0,
+48,49,49,49,49,49,50,0,0,0,0,294,0,0,0,0,
+71,72,72,72,72,72,73,0,0,0,0,293,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</chunk>
+  </data>
+ </layer>
  <layer id="4" name="Background" width="30" height="20" visible="0">
   <data encoding="csv">
    <chunk x="16" y="-16" width="16" height="16">
@@ -24,7 +46,7 @@
 </chunk>
   </data>
  </layer>
- <layer id="1" name="Ground" width="30" height="20">
+ <layer id="1" name="Ground" width="30" height="20" visible="0">
   <data encoding="csv">
    <chunk x="-16" y="-16" width="16" height="16">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -141,8 +163,11 @@
   </data>
  </layer>
  <objectgroup id="2" name="Entities">
-  <object id="1" name="Player" x="-112" y="-8">
+  <object id="1" name="Player" x="8" y="40">
    <point/>
   </object>
+ </objectgroup>
+ <objectgroup id="7" name="Events">
+  <object id="3" name="SafeZone" x="56" y="24" width="48" height="32"/>
  </objectgroup>
 </map>
