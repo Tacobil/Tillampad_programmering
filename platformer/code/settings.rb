@@ -17,6 +17,9 @@ VH = Window.height
 
 $keys = {"w" => 0, "a" => 0, "s" => 0, "d" => 0, "i" => 0, "o" => 0}
 
+class Ruby2D::Tileset
+  attr_reader :tile_width, :tile_height
+end
 
 
 # ---COLLISION---
