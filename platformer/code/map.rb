@@ -5,7 +5,7 @@ require_relative "coin.rb"
 class Map
     attr_accessor :x, :y, :objects, :tiles
     attr_reader :spawn_x, :spawn_y, :zoom
-
+    
     @@all = []
     @@current_map = nil
 
@@ -72,9 +72,9 @@ class Map
                 case tile
                 when G
                     a = Rectangle.new(
-                        x: px, y: py, 
+                        x: px, y: py,
                         width: @tile_size, height: @tile_size,
-                        color: [0.5+c_o, 0.5+c_o, 1+c_o, 1]
+                        color: [0.5+c_o, 0.5+c_o, 1+c_o, 1],
                         )
 =begin
                         a = Image.new(
