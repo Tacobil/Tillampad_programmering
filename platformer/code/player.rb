@@ -3,7 +3,7 @@ class Player
 
     # Celeste
     # Movement
-
+=begin
     MOVE_SPEED = 9
     ACCELERATION = 13
     DECCELERATION = 16
@@ -19,8 +19,8 @@ class Player
     JUMP_BUFFER_TIME = 0.1
     
     FALL_GRAVITY_MUL = 2
+=end
 
-=begin
     # Super Meat Boy
     # Movement
     MOVE_SPEED = 14
@@ -39,6 +39,7 @@ class Player
     
     FALL_GRAVITY_MUL = 1.9
 
+=begin
     # Hollow Knight
     # Movement
     MOVE_SPEED = 9
@@ -64,10 +65,11 @@ class Player
 
     MAX_HEALTH = 100
 
-    WIDTH = UNIT*0.7
-    HEIGHT = UNIT
+    WIDTH = UNIT * 1.2
+    HEIGHT = UNIT * 2
 
-    AIR_JUMPS = 1
+    AIR_JUMPS = 0
+    ABC = 10
 
     JUMP_COLORS = [
         'teal',
@@ -75,12 +77,15 @@ class Player
         [0.6, 0.3, 1, 1],
     ]
 
-    attr_accessor :rect, :jumps, :coins
+    SCALE = 3.2
+
+    attr_accessor :rect, :jumps, :coins, :health, :god_mode
 
     def initialize(game)
         @game = game
 
-        @move_input = 0
+        @input_x = 0
+        @input_y = 0
 
         @velocity_x = 0
         @velocity_y = 0
@@ -94,15 +99,18 @@ class Player
         @jumps = AIR_JUMPS + 1
         @has_jumped = false
 
-        @scale = 1
+        @scale = SCALE
 
         @rect = Rectangle.new(
-            width: WIDTH, height: HEIGHT,
+            width: WIDTH * @scale, height: HEIGHT * @scale,
             color: 'teal',
             z: 20
         )
 
+        @god_mode = false
+
         @coins = 0
+        @health = 100
 
         @health = MAX_HEALTH
     end
@@ -142,21 +150,13 @@ class Player
     end
 
     def input(keys)
-        @move_input = (keys["d"] - keys["a"])
-
-        # @velocity_y = (keys["s"] - keys["w"]) * MOVE_SPEED * @scale # allow flying
-        self.set_scale(@scale + (keys["i"] - keys["o"])*0.1)
+        @input_x = (keys["d"] - keys["a"])
+        @input_y = (keys["s"] - keys["w"])
+        # self.set_scale(@scale + (keys["i"] - keys["o"])*0.1)
     end
 
     def collision(objects, direction, dt)
         objects.each do |r| # iterate all hitbox_rects
-            if r.is_a? JumpOrb or r.is_a? Coin
-                if rect_circle(@rect, r)
-                    r.interact(self)
-                end
-                next
-            end
-
             if rect_rect?(r, @rect)
                 if direction == "horizontal"
                     @velocity_x = 0
@@ -193,53 +193,46 @@ class Player
     end
 
     def wall_collision()
-
+        change_map = false
         # map change
-        if @rect.x + @rect.width < 0 && Map.get_map(@world_x - 1, @world_y) # left       
-            @rect.x = VW # move to right side
+        if @rect.x2 < 0 # player is at left part of screen       
+            @rect.x = VW - ABC
             @world_x -= 1
-            Map.set_map(@world_x, @world_y)
+            change_map = true
         end
-        if @rect.x > VW && Map.get_map(@world_x + 1, @world_y) # right
-            @rect.x = 0 - @rect.width # move to left side
+        if @rect.x > VW # player is at right part of screen
+            @rect.x = -@rect.width + ABC
             @world_x += 1
-            Map.set_map(@world_x, @world_y)
+            change_map = true
         end
-        if @rect.y + @rect.height < 0 && Map.get_map(@world_x, @world_y - 1) # top
-            @rect.x = VW # move to bottom side
+        if @rect.y3 < 0 # player is at top part of screen
+            @rect.y = VH - ABC
             @world_y -= 1
-            Map.set_map(@world_x, @world_y)
+            change_map = true
         end
-        if @rect.y > VH && Map.get_map(@world_x, @world_y + 1) # bottom
-            @rect.x = 0 - @rect.width # move to top side
+        if @rect.y > VH
+            @rect.y = -@rect.height + ABC
             @world_y += 1
-            Map.set_map(@world_x, @world_y)
+            change_map = true
         end
-
-        # invisible walls
-        if @rect.x < 0 && !Map.get_map(@world_x - 1, @world_y) # left
-            @rect.x = 0
-            @velocity_x = 0
-        elsif @rect.x + @rect.width > VW && !Map.get_map(@world_x + 1, @world_y) # right
-            @rect.x = VW - @rect.width
-            @velocity_x = 0
-        end
-
-        if @rect.y < 0 && !Map.get_map(@world_x, @world_y - 1) # top
-            @rect.y = 0
-            @velocity_y = 0
-        elsif @rect.y + @rect.height > VH && !Map.get_map(@world_x, @world_y + 1) # bottom
-            @rect.y = VH - @rect.height
-            @velocity_y = 0
-            @air_time = 0
+        if change_map
+            @game.set_map(@game.get_map(@world_x, @world_y))
         end
     end
 
     def update(dt, objects)
         self.input($keys)
+        self.wall_collision
+        if @god_mode
+            @velocity_y = @input_y * MOVE_SPEED * @scale * 10
+            @velocity_x = @input_x * MOVE_SPEED * @scale * 10
+            @rect.x += @velocity_x * dt
+            @rect.y += @velocity_y * dt
+            return
+        end
 
         # Movement, https://youtu.be/KbtcEVCM7bw?si=sFKXjFfIVndh50TN&t=108
-        target_speed = @move_input * MOVE_SPEED * MOVE_SPEED * @scale # get direction and desired velocity
+        target_speed = @input_x * MOVE_SPEED * MOVE_SPEED * @scale # get direction and desired velocity
         speed_dif = target_speed - @velocity_x # get difference between current speed and desired velocity
         
         if target_speed == 0
@@ -252,7 +245,7 @@ class Player
         @acceleration_x = movement
 
         # Friction
-        if @air_time == 0 && @move_input == 0
+        if @air_time == 0 && @input_x == 0
             amount = [@velocity_x.abs, FRICTION_AMOUNT].min
             amount *= sign(@velocity_x)
             @velocity_x -= amount
@@ -279,10 +272,14 @@ class Player
             
 
         if @rect.y > VH
-            @rect.y = -@rect.height
+            # Death
+            self.die
+            @rect.y *= -1
         end
 
-        # self.wall_collision
     end
 
+    def die
+        
+    end
 end

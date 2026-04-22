@@ -11,20 +11,37 @@ class Game
         @narrator = Dialogue.new("Narrator", "textures/speaker/narrator.png", 0.7, "sfx/voice_toriel.wav")
         @player = Player.new(self)
         @maps = [
-            Map.new(0,0,$map1),
-            Map.new(1,0,$map2),
-            Map.new(2,0,$map3),
+            Map.new("data/maps/start.tmx",0,0),
+            Map.new("data/maps/plains.tmx",1,0),
         ]
-        
-        self.set_map(0,0)
+        set_map(@maps.first)
+        respawn()
     end
 
-    def set_map(x, y)
-        map = Map.set_map(x, y)
-        
-        @player.set_scale(map.zoom)
-        @player.rect.x = map.spawn_x
-        @player.rect.y = map.spawn_y
+    def get_map(x, y)
+        the_map = nil
+        # Find the corresponding map
+        @maps.each do |map|
+            if map.x == x and map.y == y
+                return map
+            end
+        end
+
+        return nil
+    end
+    
+    def respawn()
+        @player.rect.x = @map.spawn_x
+        @player.rect.y = @map.spawn_y
+        @player.health = 100
+    end
+
+    def set_map(map)
+        if @map
+            @map.hide
+        end
+        @map = map
+        @map.show
     end
 
     def key_down(key)
@@ -41,11 +58,9 @@ class Game
         @narrator.skip
     end
 
-    def update(dt)
-        map = Map.current_map
-        
-        map.update(dt)
-        @player.update(dt, map.tiles + map.objects)
+    def update(dt)     
+        @player.update(dt, @map.collisions)
+        @map.update(dt, @player)
         @narrator.update(dt)
     end
 
@@ -67,10 +82,6 @@ update do
     game.update(dt)
 end
 
-map = 0
-
-
-
 on :key_down do |event|
     game.key_down(event.key)
     # debugging events
@@ -78,9 +89,8 @@ on :key_down do |event|
     when "r"
         clear
         game = Game.new
-    when "e"
-        map = (map + 1) % 3
-        game.set_map(map, 0)
+    when "t"
+        game.player.god_mode = !game.player.god_mode
     end
 end
 

@@ -25,12 +25,7 @@ class Dialogue
 		@current_delay = 0
 		@typing = false
 		
-		@text_queue = [
-			"holy crap",
-			"what the fuck?!?!. ...",
-			"uhhh",
-			"stop wasting time here and go"
-		]
+		@text_queue = []
 		
 		
 		@rect = Rectangle.new(width: WIDTH, height: HEIGHT, x: X, y: Y, z: 100, color: COLOR)

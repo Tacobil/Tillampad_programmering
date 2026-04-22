@@ -1,6 +1,5 @@
 require "ruby2d"
 
-
 set width: 16*64,
 height: 9*64,
 
@@ -172,4 +171,4 @@ $map3 = [
 
 
 
-UNIT = 16
+UNIT = 8
