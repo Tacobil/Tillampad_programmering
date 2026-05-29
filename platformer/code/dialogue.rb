@@ -3,8 +3,8 @@
 class Dialogue
 	WIDTH = VW * 0.8
 	HEIGHT = VH * 0.3
-	X = center(VW*0.5, WIDTH)
-	Y = center(VH*0.8, HEIGHT)
+	X = centerize(VW*0.5, WIDTH)
+	Y = centerize(VH*0.8, HEIGHT)
 	COLOR = [0.2, 0.2, 0.3, 1]
 
 	PADDING = 10
@@ -84,10 +84,10 @@ class Dialogue
 		
 		@elements = [@rect, @icon_frame, @name_frame, @text_frame, @icon, @name, @text, @hint]
 		
-		centerize(@icon, @icon_frame)
-		centerize(@name, @name_frame)
-		centerize(@text, @text_frame)
-		centerize(@hint, @text_frame)
+		centerize_rect(@icon, @icon_frame)
+		centerize_rect(@name, @name_frame)
+		centerize_rect(@text, @text_frame)
+		centerize_rect(@hint, @text_frame)
 		@hint.y = Y + HEIGHT * 0.85
 		
 		self.set_visibility(false)
@@ -103,7 +103,7 @@ class Dialogue
 		end
 	end
 	
-	def speak(text, attributes)
+	def speak(text, attributes=nil)
 		# attributes: skippable, unknown
 
 		self.set_visibility(true)
@@ -117,14 +117,14 @@ class Dialogue
 	end
 
 	def add_to_queue(text)
-		@text_queue << @text
+		@text_queue << text
 	end
 
 	def skip
 		if @typing
 			# fast forward this line
 			@text.text = @current_message
-			centerize(@text, @text_frame)
+			centerize_rect(@text, @text_frame)
 			@typing = false
 
 		elsif @text_queue.length > 0
@@ -145,11 +145,10 @@ class Dialogue
 		if @typing
 			while @timer > @current_delay
 				@timer -= @current_delay
-				
 				if @letter_i < @current_message.length
 					this_letter = @current_message[@letter_i]
 					@text.text += this_letter
-					centerize(@text, @text_frame)
+					centerize_rect(@text, @text_frame)
 
 					if @delays[this_letter]
 						@current_delay = @delays[this_letter]

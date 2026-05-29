@@ -68,19 +68,19 @@ class Player
     WIDTH = UNIT * 1.2
     HEIGHT = UNIT * 2
 
-    AIR_JUMPS = 0
-    ABC = 10
-
-    JUMP_COLORS = [
-        'teal',
-        [1, 0.3, 0.3, 1],
-        [0.6, 0.3, 1, 1],
-    ]
+    AIR_JUMPS = 1
+    MAP_CHANGE_MARGIN = 10
 
     SCALE = 3.2
 
+    RESPAWN_TIME = 2
+
     attr_accessor :rect, :jumps, :coins, :health, :god_mode
 
+    # Initialize a new player
+    # 
+    # @param game [Game] the game object
+    # @return void
     def initialize(game)
         @game = game
 
@@ -96,17 +96,18 @@ class Player
         @world_y = 0
                 
         @air_time = 0.0
-        @jumps = AIR_JUMPS + 1
+        @jumps = 0
         @has_jumped = false
 
-        @scale = SCALE
-
         @rect = Rectangle.new(
-            width: WIDTH * @scale, height: HEIGHT * @scale,
+            width: WIDTH * SCALE, height: HEIGHT * SCALE,
             color: 'teal',
             z: 20
         )
-
+        @death_screen = Image.new("textures/you-died.png", x:0, y:0, z:100, width:VW, height:VH)
+        @death_screen.remove
+        @death_counter = 0
+        
         @god_mode = false
 
         @coins = 0
@@ -115,44 +116,47 @@ class Player
         @health = MAX_HEALTH
     end
 
-    def set_scale(scale)
-        if scale <= 0
-            return
-        end
-
-        @scale = scale
-        @rect.width = WIDTH * scale
-        @rect.height = HEIGHT * scale
+    # Respawn the player
+    # 
+    # @return void
+    def respawn()
+        @rect.x = @game.map.spawn_x
+        @rect.y = @game.map.spawn_y - @rect.height
+        @velocity_x = 0
+        @velocity_y = 0
+        @health = 100
+        
+        @death_counter = 0
+        @death_screen.remove
+        @rect.add
     end
 
+    # Make the player jump
+    # 
+    # @return void
     def jump
-        if @jumps <= 0 # don't jump if player has no jumps left
+        if @jumps > AIR_JUMPS # don't jump if player has no jumps left
             return
         end
 
         if @velocity_y >= 0
-            @velocity_y = -JUMPPOWER * @scale
+            @velocity_y = -JUMPPOWER * SCALE
         else
             @velocity_y *= 0.8
-            @velocity_y += -JUMPPOWER * @scale
+            @velocity_y += -JUMPPOWER * SCALE
         end
-        self.set_jumps(@jumps-1)
+
+        @jumps += 1
         @has_jumped = true
     end
 
-    def set_jumps(jumps)
-        @jumps = jumps
-        if jumps >= JUMP_COLORS.length
-            @rect.color = JUMP_COLORS[-1]
-        else
-            @rect.color = JUMP_COLORS[jumps]
-        end
-    end
-
+    # Handle inputs
+    # 
+    # @param keys [Hash] hash containing the pressed keys
+    # @return void
     def input(keys)
         @input_x = (keys["d"] - keys["a"])
         @input_y = (keys["s"] - keys["w"])
-        # self.set_scale(@scale + (keys["i"] - keys["o"])*0.1)
     end
 
     def collision(objects, direction, dt)
@@ -177,7 +181,7 @@ class Player
                             # p @air_time
                         end
                         @air_time = 0
-                        self.set_jumps(AIR_JUMPS + 1)
+                        @jumps = 0
                         @has_jumped = false
 
                         # apply velocity if object is moving
@@ -192,47 +196,57 @@ class Player
         end
     end
 
-    def wall_collision()
+    # Handle map changes when player goes off-screen
+    # 
+    # @return void
+    def map_check
         change_map = false
+
         # map change
-        if @rect.x2 < 0 # player is at left part of screen       
-            @rect.x = VW - ABC
+        if @rect.x2 < 0 # player is at left part of screen
+            @rect.x = VW - MAP_CHANGE_MARGIN
             @world_x -= 1
             change_map = true
         end
         if @rect.x > VW # player is at right part of screen
-            @rect.x = -@rect.width + ABC
+            @rect.x = -@rect.width + MAP_CHANGE_MARGIN
             @world_x += 1
             change_map = true
         end
-        if @rect.y3 < 0 # player is at top part of screen
-            @rect.y = VH - ABC
-            @world_y -= 1
-            change_map = true
-        end
-        if @rect.y > VH
-            @rect.y = -@rect.height + ABC
-            @world_y += 1
-            change_map = true
-        end
         if change_map
-            @game.set_map(@game.get_map(@world_x, @world_y))
+            map = @game.get_map(@world_x, @world_y)
+            if map != nil
+                @game.set_map(map)
+            end
         end
     end
 
-    def update(dt, objects)
+    # Update the player
+    # @param dt [float]
+    # @return void
+    def update(dt)
         self.input($keys)
-        self.wall_collision
-        if @god_mode
-            @velocity_y = @input_y * MOVE_SPEED * @scale * 10
-            @velocity_x = @input_x * MOVE_SPEED * @scale * 10
-            @rect.x += @velocity_x * dt
-            @rect.y += @velocity_y * dt
+        self.map_check
+
+        if @health == 0
+            @death_counter += dt
+            if @death_counter > RESPAWN_TIME
+                self.respawn
+            end
+
             return
         end
 
+        if @god_mode
+            @velocity_y = @input_y * MOVE_SPEED * SCALE * 40
+            @velocity_x = @input_x * MOVE_SPEED * SCALE * 40
+            @rect.x += @velocity_x * dt
+            @rect.y += @velocity_y * dt
+            return # Skip collision-checking, gravity, etc.
+        end
+
         # Movement, https://youtu.be/KbtcEVCM7bw?si=sFKXjFfIVndh50TN&t=108
-        target_speed = @input_x * MOVE_SPEED * MOVE_SPEED * @scale # get direction and desired velocity
+        target_speed = @input_x * MOVE_SPEED * MOVE_SPEED * SCALE # get direction and desired velocity
         speed_dif = target_speed - @velocity_x # get difference between current speed and desired velocity
         
         if target_speed == 0
@@ -253,33 +267,38 @@ class Player
 
 
         @velocity_x += @acceleration_x * dt
-        @velocity_y += @acceleration_y * @scale * dt
+        @velocity_y += @acceleration_y * SCALE * dt
 
         @air_time += dt
 
         @rect.y += @velocity_y * dt
-        self.collision(objects, "vertical", dt)
+        self.collision(@game.map.collisions, "vertical", dt)
 
         @rect.x += @velocity_x * dt
-        
-        self.collision(objects, "horizontal", dt)
+        self.collision(@game.map.collisions, "horizontal", dt)
 
         # player is airborne and haven't jumped; remove one jump.
-        if @has_jumped == false && @air_time > JUMP_COYOTE_TIME && @jumps == AIR_JUMPS + 1
+        if @has_jumped == false && @air_time > JUMP_COYOTE_TIME && @jumps == 0
             @has_jumped = true
-            self.set_jumps(@jumps - 1)
+            @jumps += 1
         end
             
 
         if @rect.y > VH
-            # Death
             self.die
-            @rect.y *= -1
         end
 
     end
 
+    # Kill the player
+    # 
+    # @return void
     def die
-        
+        @rect.remove
+        @death_screen.add
+        @health = 0
+        sfx = Sound.new("sfx/you-died.mp3")
+        sfx.volume = 100
+        sfx.play
     end
 end

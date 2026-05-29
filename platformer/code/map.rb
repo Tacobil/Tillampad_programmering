@@ -38,6 +38,9 @@ class Coin < Circle
 		if @sprite
 			@sprite.remove
 		end
+    @particles.each do |p|
+      p.remove
+    end
 	end
 
 	def update(dt, player)
@@ -73,7 +76,6 @@ class Coin < Circle
 			return
 		end
 		@collected = true
-
 		player.coins += 1
 		sfx = Sound.new("sfx/coin.mp3")
 
@@ -233,9 +235,10 @@ end
 class Map
   SCALE = 3.2
   
-  attr_reader :spawn_x, :spawn_y, :collisions, :x, :y
+  attr_reader :x, :y, :spawn_x, :spawn_y, :collisions, :coins, :spikes
 
-  def initialize(tmx_path, x, y)
+  def initialize(game, tmx_path, x, y)
+    @game = game
     @tmx_map = Tmx.load(tmx_path)
     @zoom = SCALE
     @x = x
@@ -245,6 +248,8 @@ class Map
     @tilesets = []
     @coins = []
     @spikes = []
+    @ladder = []
+    @dialogue_boxes = []
 
     tile_id = 1
 
@@ -289,6 +294,12 @@ class Map
         if layer.name == "Coins"
           @coins << Coin.new(x*8, y*8, SCALE)
           next
+        elsif layer.name == "Ladder"
+          @ladder << ""
+          next
+        elsif layer.name == "Spikes"
+          @spikes << ""
+          next
         end
 
         # Load tile from the corresponding tileset
@@ -322,6 +333,16 @@ class Map
 
           @collisions << r
         end
+
+      elsif object_group.name == "Dialogue"
+        object_group.objects.each do |object|
+          r = Rectangle.new(
+            x: object.x*SCALE, y: object.y*SCALE, z: 1000,
+            width: object.width*SCALE, height: object.height*SCALE,
+            color: [0,0,0,0]
+          )
+          @dialogue_boxes << {"rect" => r, "text" => object.name}
+        end
       end
     end
 
@@ -339,6 +360,12 @@ class Map
   def update(dt, player)
     @coins.each do |coin|
       coin.update(dt, player)
+    end
+    @dialogue_boxes.each_with_index do |db, i|
+      if rect_rect?(db["rect"], player.rect)
+        @dialogue_boxes.delete_at(i)
+        @game.narrator.speak(db["text"])
+      end
     end
   end
 

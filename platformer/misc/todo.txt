@@ -9,9 +9,9 @@ Player
 Management
     [x]    Folders for textures, sfx, misc
     [x]    Separation of main script
-    [x]        main
-    [x]        player
-    [x]        map
+    [x]    main
+    [x]    player
+    [x]    map
 
 Map
     []     Screen segments
